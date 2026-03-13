@@ -1,0 +1,23 @@
+{
+  "name": "@codowave/github-app",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@codowave/core": "workspace:*",
+    "@octokit/app": "^15.1.0",
+    "@octokit/webhooks": "^13.3.0",
+    "@octokit/rest": "^20.1.0",
+    "@trigger.dev/sdk": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
