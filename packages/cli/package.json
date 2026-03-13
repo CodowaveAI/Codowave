@@ -1,0 +1,22 @@
+{
+  "name": "codowave",
+  "version": "0.1.0",
+  "description": "AI agent that automates GitHub issues end-to-end",
+  "bin": { "codowave": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "lint": "eslint src/",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "ink": "^5.0.0",
+    "react": "^18.3.0",
+    "zod": "^3.24.1",
+    "@codowave/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "@types/react": "^18.3.0"
+  }
+}
