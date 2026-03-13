@@ -4,6 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "typeRoots": [
+      "../../node_modules/.pnpm/@types+node@22.19.15/node_modules/@types",
       "../../node_modules/.pnpm/@types+node@20.19.37/node_modules/@types",
       "../../node_modules/@types",
       "./node_modules/@types"
