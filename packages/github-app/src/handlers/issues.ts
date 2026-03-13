@@ -1,96 +1,97 @@
 import type { App } from "@octokit/app";
-import { db } from "@codowave/core/db";
-import { runs, repositories } from "@codowave/core/db/schema";
-import { eq, and } from "drizzle-orm";
-import { tasks } from "@trigger.dev/sdk/v3";
 
-const TRIGGER_LABEL = "agent-ready";
+const AGENT_READY_LABEL = "agent-ready";
+const IN_PROGRESS_LABEL = "in-progress";
 
-export function registerIssueHandlers(app: App) {
+/**
+ * Registers issue event handlers.
+ *
+ * OSS note: Trigger.dev and DB integration are omitted.
+ * When an issue is labeled `agent-ready`, a custom event is emitted
+ * that downstream consumers can subscribe to via the `onIssueReady` hook.
+ */
+
+type IssueReadyPayload = {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+  issueTitle: string;
+  issueBody: string;
+  issueUrl: string;
+  installationId: number;
+};
+
+type IssueReadyHandler = (payload: IssueReadyPayload) => Promise<void>;
+
+const handlers: IssueReadyHandler[] = [];
+
+/** Register a callback that fires when an issue is labeled agent-ready. */
+export function onIssueReady(handler: IssueReadyHandler): void {
+  handlers.push(handler);
+}
+
+export function registerIssueHandlers(app: App): void {
   app.webhooks.on("issues.labeled", async ({ payload, octokit }) => {
     const label = payload.label?.name;
-    if (label !== TRIGGER_LABEL) return;
+    if (label !== AGENT_READY_LABEL) return;
 
     const issue = payload.issue;
     const repo = payload.repository;
 
-    console.log(`[issues.labeled] repo=${repo.full_name} issue=#${issue.number} label=${label}`);
+    console.log(
+      `[issues.labeled] repo=${repo.full_name} issue=#${issue.number} label=${label}`
+    );
 
-    // Find the repository record
-    const [repoRecord] = await db
-      .select()
-      .from(repositories)
-      .where(eq(repositories.githubRepoId, repo.id))
-      .limit(1);
-
-    if (!repoRecord) {
-      console.warn(`[issues.labeled] No repository record found for githubRepoId=${repo.id}`);
+    // Fail fast if installation context is missing — cannot authenticate without it
+    if (!payload.installation?.id) {
+      console.error("[issues.labeled] Missing installation.id — cannot dispatch onIssueReady");
       return;
     }
 
-    // Check if a run already exists for this issue
-    const [existingRun] = await db
-      .select()
-      .from(runs)
-      .where(
-        and(
-          eq(runs.repositoryId, repoRecord.id),
-          eq(runs.issueNumber, issue.number),
-          eq(runs.status, "pending")
-        )
-      )
-      .limit(1);
-
-    if (existingRun) {
-      console.log(`[issues.labeled] Run already exists: runId=${existingRun.id}`);
-      return;
-    }
-
-    // Create a new run record
-    const [newRun] = await db
-      .insert(runs)
-      .values({
-        repositoryId: repoRecord.id,
-        issueNumber: issue.number,
-        issueTitle: issue.title,
-        issueBody: issue.body ?? "",
-        issueUrl: issue.html_url,
-        status: "pending",
-        retryCount: 0,
-        plan: null,
-        patch: null,
-        prNumber: null,
-        prUrl: null,
+    // Update labels: add in-progress, remove agent-ready
+    await octokit.rest.issues
+      .addLabels({
+        owner: repo.owner.login,
+        repo: repo.name,
+        issue_number: issue.number,
+        labels: [IN_PROGRESS_LABEL],
       })
-      .returning();
+      .catch((err: unknown) =>
+        console.error("[issues.labeled] Failed to add in-progress label:", err)
+      );
 
-    console.log(`[issues.labeled] Created run runId=${newRun.id}`);
+    await octokit.rest.issues
+      .removeLabel({
+        owner: repo.owner.login,
+        repo: repo.name,
+        issue_number: issue.number,
+        name: AGENT_READY_LABEL,
+      })
+      .catch(() => {
+        /* label may already be removed */
+      });
 
-    // Add in-progress label to the issue
-    await octokit.rest.issues.addLabels({
+    // Emit to registered handlers
+    const readyPayload: IssueReadyPayload = {
       owner: repo.owner.login,
       repo: repo.name,
-      issue_number: issue.number,
-      labels: ["in-progress"],
-    });
+      issueNumber: issue.number,
+      issueTitle: issue.title,
+      issueBody: issue.body ?? "",
+      issueUrl: issue.html_url,
+      installationId: payload.installation.id,
+    };
 
-    // Remove agent-ready label
-    await octokit.rest.issues.removeLabel({
-      owner: repo.owner.login,
-      repo: repo.name,
-      issue_number: issue.number,
-      name: TRIGGER_LABEL,
-    }).catch(() => {/* label may not exist */});
-
-    // Enqueue Trigger.dev task
-    await tasks.trigger("process-issue", { runId: newRun.id });
-
-    console.log(`[issues.labeled] Triggered process-issue task for runId=${newRun.id}`);
+    for (const handler of handlers) {
+      await handler(readyPayload).catch((err: unknown) =>
+        console.error("[issues.labeled] Handler error:", err)
+      );
+    }
   });
 
   app.webhooks.on("issues.unlabeled", async ({ payload }) => {
-    // If in-progress label removed manually, we may want to cancel the run
-    // For now, just log
-    console.log(`[issues.unlabeled] issue=#${payload.issue.number} label=${payload.label?.name}`);
+    console.log(
+      `[issues.unlabeled] issue=#${payload.issue.number} label=${payload.label?.name ?? "unknown"}`
+    );
   });
 }
