@@ -43,7 +43,8 @@ export function readConfig(): CodowaveConfig | null {
     }
 
     return parsed.data;
-  } catch {
+  } catch (err) {
+    console.warn(`[config] Failed to parse ${CONFIG_FILE}:`, err);
     return null;
   }
 }

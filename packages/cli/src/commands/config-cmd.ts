@@ -7,14 +7,14 @@ export const configCommand = new Command("config")
 configCommand
   .command("get <key>")
   .description("Get a config value")
-  .action((key: string) => {
+  .action((_key: string) => {
     console.log(pc.yellow("config get — full implementation in Task 5.3"));
   });
 
 configCommand
   .command("set <key> <value>")
   .description("Set a config value")
-  .action((key: string, value: string) => {
+  .action((_key: string, _value: string) => {
     console.log(pc.yellow("config set — full implementation in Task 5.3"));
   });
 
