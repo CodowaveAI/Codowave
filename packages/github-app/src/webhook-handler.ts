@@ -1,37 +1,52 @@
-import type { RepoContext } from '@codowave/core';
+import { githubApp } from "./app";
+import { registerInstallationHandlers } from "./handlers/installation";
+import { registerIssueHandlers } from "./handlers/issues";
+import { registerPullRequestHandlers } from "./handlers/pull-request";
+import { verifyWebhookSignature } from "./utils/signature";
 
-export interface WebhookPayload {
-  action: string;
-  issue?: {
-    number: number;
-    title: string;
-    body: string | null;
-    labels: Array<{ name: string }>;
-    html_url: string;
-  };
-  repository: {
-    full_name: string;
-    default_branch: string;
-    owner: { login: string };
-    name: string;
-  };
+// Register all event handlers
+registerInstallationHandlers(githubApp);
+registerIssueHandlers(githubApp);
+registerPullRequestHandlers(githubApp);
+
+// Global error handler
+githubApp.webhooks.onError((error) => {
+  console.error("[webhook] Error processing event:", error);
+});
+
+/**
+ * Handles an incoming GitHub webhook request.
+ * Can be used in Next.js Route Handler or standalone Express.
+ */
+export async function handleGitHubWebhook(
+  headers: Record<string, string | string[] | undefined>,
+  rawBody: string | Buffer
+): Promise<{ status: number; body: string }> {
+  const signature = (headers["x-hub-signature-256"] ?? "") as string;
+  const eventName = (headers["x-github-event"] ?? "") as string;
+  const deliveryId = (headers["x-github-delivery"] ?? "") as string;
+
+  if (!signature) {
+    return { status: 400, body: "Missing signature" };
+  }
+
+  const secret = process.env.GITHUB_WEBHOOK_SECRET!;
+  const isValid = verifyWebhookSignature(rawBody, signature, secret);
+  if (!isValid) {
+    return { status: 401, body: "Invalid signature" };
+  }
+
+  try {
+    await githubApp.webhooks.receive({
+      id: deliveryId,
+      name: eventName as any,
+      payload: JSON.parse(typeof rawBody === "string" ? rawBody : rawBody.toString()),
+    });
+    return { status: 200, body: "OK" };
+  } catch (err) {
+    console.error("[webhook] Failed to process:", err);
+    return { status: 500, body: "Internal error" };
+  }
 }
 
-export function buildRepoContext(payload: WebhookPayload): RepoContext | null {
-  if (!payload.issue) return null;
-
-  return {
-    owner: payload.repository.owner.login,
-    repo: payload.repository.name,
-    defaultBranch: payload.repository.default_branch,
-    issue: {
-      number: payload.issue.number,
-      title: payload.issue.title,
-      body: payload.issue.body ?? '',
-      labels: payload.issue.labels.map(l => l.name),
-      url: payload.issue.html_url,
-    },
-    fileTree: [],
-    relevantFiles: {},
-  };
-}
+export { githubApp };

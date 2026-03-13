@@ -1,3 +1,6 @@
-// @codowave/github-app — placeholder for webhook handler + Octokit setup
-// Implemented in subsequent tasks (0.3-github-app)
-export {};
+export { githubApp } from "./app";
+export { handleGitHubWebhook } from "./webhook-handler";
+export { verifyWebhookSignature } from "./utils/signature";
+export { registerInstallationHandlers } from "./handlers/installation";
+export { registerIssueHandlers } from "./handlers/issues";
+export { registerPullRequestHandlers } from "./handlers/pull-request";
