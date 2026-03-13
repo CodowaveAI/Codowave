@@ -9,9 +9,7 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "db:generate": "pnpm --filter @codowave/core drizzle-kit generate",
-    "db:migrate": "pnpm --filter @codowave/core drizzle-kit migrate"
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "turbo": "^2.3.3",
