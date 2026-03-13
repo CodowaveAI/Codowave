@@ -2,14 +2,17 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
-  DATABASE_URL: z.string().min(1),
-  MINIMAX_API_KEY: z.string().optional(),
-  OPENAI_API_KEY: z.string().optional(),
-  ANTHROPIC_API_KEY: z.string().optional(),
+  // GitHub App — required for the agent to operate
   GITHUB_APP_ID: z.string().min(1),
   GITHUB_APP_PRIVATE_KEY: z.string().min(1),
   GITHUB_WEBHOOK_SECRET: z.string().min(1),
-  TRIGGER_SECRET_KEY: z.string().min(1),
+  // AI providers — at least one should be set
+  OPENAI_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  MINIMAX_API_KEY: z.string().optional(),
+  // Pro/hosted-only (optional in OSS)
+  DATABASE_URL: z.string().optional(),
+  TRIGGER_SECRET_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
 });
