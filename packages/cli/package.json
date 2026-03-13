@@ -1,22 +1,34 @@
 {
   "name": "codowave",
   "version": "0.1.0",
-  "description": "AI agent that automates GitHub issues end-to-end",
-  "bin": { "codowave": "./dist/index.js" },
+  "description": "Codowave OSS CLI — AI-powered coding agent for your GitHub repos",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "codowave": "./dist/index.js"
+  },
+  "files": ["dist"],
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
-    "lint": "eslint src/",
-    "dev": "tsc --watch"
+    "build": "tsup src/index.ts --format esm --dts --clean --banner.js '#!/usr/bin/env node'",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
     "commander": "^12.1.0",
-    "ink": "^5.0.0",
-    "react": "^18.3.0",
-    "zod": "^3.24.1",
-    "@codowave/core": "workspace:*"
+    "ink": "^5.0.1",
+    "ink-spinner": "^5.0.0",
+    "picocolors": "^1.1.0",
+    "react": "^18.3.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "@types/react": "^18.3.0"
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.1",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
