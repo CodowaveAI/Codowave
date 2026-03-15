@@ -9,6 +9,7 @@ const { runCommand } = await import("./commands/run.js");
 const { statusCommand } = await import("./commands/status.js");
 const { logsCommand } = await import("./commands/logs.js");
 const { configCommand } = await import("./commands/config-cmd.js");
+const { connectCommand } = await import("./commands/connect.js");
 
 const VERSION = "0.1.0";
 
@@ -36,6 +37,7 @@ program.addCommand(runCommand);
 program.addCommand(statusCommand);
 program.addCommand(logsCommand);
 program.addCommand(configCommand);
+program.addCommand(connectCommand);
 
 // ── Global error handler ───────────────────────────────────────────────────
 
@@ -47,6 +49,7 @@ program.configureOutput({
 const args = process.argv.slice(2);
 const isInitOrHelp =
   args[0] === "init" ||
+  args[0] === "connect" ||
   args.includes("--help") ||
   args.includes("-h") ||
   args.includes("--version") ||
