@@ -119,6 +119,7 @@ export const repositories = pgTable('repositories', {
   private: boolean('private').notNull().default(false),
   defaultBranch: text('default_branch').notNull().default('main'),
   enabled: boolean('enabled').notNull().default(true),
+  autopilotEnabled: boolean('autopilot_enabled').notNull().default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
