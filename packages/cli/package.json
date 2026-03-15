@@ -12,7 +12,9 @@
     "build": "tsup src/index.ts --format esm --dts --clean --banner.js '#!/usr/bin/env node'",
     "dev": "tsup src/index.ts --format esm --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "commander": "^12.1.0",
@@ -26,7 +28,8 @@
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.1",
     "tsup": "^8.3.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=20.0.0"
