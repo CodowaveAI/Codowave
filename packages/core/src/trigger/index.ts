@@ -90,6 +90,10 @@ export {
 export { securityMonitorTask, SECURITY_MONITOR_TASK_ID } from '../cron/security-monitor.js';
 export type { SecurityMonitorInput, SecurityMonitorPayload, Vulnerability, SecurityScanResult } from '../cron/security-monitor.js';
 
+// Export bug-scanner task
+export { bugScannerTask, BUG_SCANNER_TASK_ID } from '../cron/bug-scanner.js';
+export type { BugScannerInput, BugScannerPayload, BugFinding, BugScanResult } from '../cron/bug-scanner.js';
+
 // Environment variable getters
 /**
  * Get the Trigger.dev project ID from environment variables.
