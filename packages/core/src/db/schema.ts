@@ -9,6 +9,7 @@ import {
   pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 // Enums
 export const runStatusEnum = pgEnum('run_status', [
@@ -52,6 +53,17 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Users relations
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+  accounts: many(accounts),
+  installations: many(installations),
+  repositories: many(repositories),
+  runs: many(runs),
+  cronRuns: many(cronRuns),
+  subscriptions: many(subscriptions),
+}));
+
 // Sessions table (for authentication)
 export const sessions = pgTable('sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -64,6 +76,14 @@ export const sessions = pgTable('sessions', {
 }, (table) => ({
   userIdIdx: index('idx_sessions_user_id').on(table.userId),
   tokenIdx: index('idx_sessions_token').on(table.token),
+}));
+
+// Sessions relations
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
 }));
 
 // Accounts table (OAuth provider accounts)
@@ -89,6 +109,14 @@ export const accounts = pgTable('accounts', {
   userIdIdx: index('idx_accounts_user_id').on(table.userId),
 }));
 
+// Accounts relations
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
 // GitHub Installations table
 export const installations = pgTable('installations', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -104,6 +132,15 @@ export const installations = pgTable('installations', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
   userIdIdx: index('idx_installations_user_id').on(table.userId),
+}));
+
+// Installations relations
+export const installationsRelations = relations(installations, ({ one, many }) => ({
+  user: one(users, {
+    fields: [installations.userId],
+    references: [users.id],
+  }),
+  repositories: many(repositories),
 }));
 
 // Repositories table
@@ -124,6 +161,18 @@ export const repositories = pgTable('repositories', {
 }, (table) => ({
   installationIdIdx: index('idx_repositories_installation_id').on(table.installationId),
   userIdIdx: index('idx_repositories_user_id').on(table.userId),
+}));
+
+// Repositories relations
+export const repositoriesRelations = relations(repositories, ({ one }) => ({
+  installation: one(installations, {
+    fields: [repositories.installationId],
+    references: [installations.id],
+  }),
+  user: one(users, {
+    fields: [repositories.userId],
+    references: [users.id],
+  }),
 }));
 
 // Runs table
@@ -156,6 +205,24 @@ export const runs = pgTable('runs', {
   githubRunIdIdx: index('idx_runs_github_run_id').on(table.githubRunId),
 }));
 
+// Runs relations
+export const runsRelations = relations(runs, ({ one, many }) => ({
+  user: one(users, {
+    fields: [runs.userId],
+    references: [users.id],
+  }),
+  repository: one(repositories, {
+    fields: [runs.repositoryId],
+    references: [repositories.id],
+  }),
+  installation: one(installations, {
+    fields: [runs.installationId],
+    references: [installations.id],
+  }),
+  runStages: many(runStages),
+  testResults: many(testResults),
+}));
+
 // Run Stages table
 export const runStages = pgTable('run_stages', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -175,6 +242,15 @@ export const runStages = pgTable('run_stages', {
   statusIdx: index('idx_run_stages_status').on(table.status),
 }));
 
+// Run Stages relations
+export const runStagesRelations = relations(runStages, ({ one, many }) => ({
+  run: one(runs, {
+    fields: [runStages.runId],
+    references: [runs.id],
+  }),
+  testResults: many(testResults),
+}));
+
 // Test Results table
 export const testResults = pgTable('test_results', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -192,6 +268,18 @@ export const testResults = pgTable('test_results', {
 }, (table) => ({
   runIdIdx: index('idx_test_results_run_id').on(table.runId),
   runStageIdIdx: index('idx_test_results_run_stage_id').on(table.runStageId),
+}));
+
+// Test Results relations
+export const testResultsRelations = relations(testResults, ({ one }) => ({
+  run: one(runs, {
+    fields: [testResults.runId],
+    references: [runs.id],
+  }),
+  runStage: one(runStages, {
+    fields: [testResults.runStageId],
+    references: [runStages.id],
+  }),
 }));
 
 // Cron Runs table
@@ -217,6 +305,18 @@ export const cronRuns = pgTable('cron_runs', {
   enabledIdx: index('idx_cron_runs_enabled').on(table.enabled),
 }));
 
+// Cron Runs relations
+export const cronRunsRelations = relations(cronRuns, ({ one }) => ({
+  user: one(users, {
+    fields: [cronRuns.userId],
+    references: [users.id],
+  }),
+  repository: one(repositories, {
+    fields: [cronRuns.repositoryId],
+    references: [repositories.id],
+  }),
+}));
+
 // Subscriptions table
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -236,6 +336,14 @@ export const subscriptions = pgTable('subscriptions', {
   userIdIdx: index('idx_subscriptions_user_id').on(table.userId),
   statusIdx: index('idx_subscriptions_status').on(table.status),
   stripeCustomerIdIdx: index('idx_subscriptions_stripe_customer_id').on(table.stripeCustomerId),
+}));
+
+// Subscriptions relations
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
+  }),
 }));
 
 // Type exports
