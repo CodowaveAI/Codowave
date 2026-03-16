@@ -5,6 +5,15 @@ import { z } from "zod";
 
 // ── Schema ─────────────────────────────────────────────────────────────────
 
+export const AIProviderSchema = z.object({
+  provider: z.enum(["openai", "anthropic", "minimax", "ollama", "custom"]),
+  apiKey: z.string().min(1),
+  model: z.string().default(""),
+  baseUrl: z.string().url().optional(),
+});
+
+export type AIProvider = z.infer<typeof AIProviderSchema>;
+
 export const ConfigSchema = z.object({
   apiKey: z.string().min(1),
   apiUrl: z.string().url().default("https://api.codowave.com"),
@@ -17,6 +26,7 @@ export const ConfigSchema = z.object({
       })
     )
     .default([]),
+  ai: AIProviderSchema.optional(),
 });
 
 export type CodowaveConfig = z.infer<typeof ConfigSchema>;
