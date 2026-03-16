@@ -86,13 +86,17 @@ export {
 // Note: The trigger.config.ts at package root is used by the Trigger.dev CLI.
 // It should not be imported at runtime - it's a configuration file for the CLI.
 
-// Export process-issue task
-export { processIssueTask, PROCESS_ISSUE_TASK_ID } from './process-issue.js';
-export type { ProcessIssueInput, ProcessIssuePayload } from './process-issue.js';
-
 // Export retry-run task
 export { retryRunTask, RETRY_RUN_TASK_ID } from './retry-run.js';
 export type { RetryRunInput, RetryRunPayload } from './retry-run.js';
+
+// Export security-monitor task
+export { securityMonitorTask, SECURITY_MONITOR_TASK_ID } from '../cron/security-monitor.js';
+export type { SecurityMonitorInput, SecurityMonitorPayload, Vulnerability, SecurityScanResult } from '../cron/security-monitor.js';
+
+// Export bug-scanner task
+export { bugScannerTask, BUG_SCANNER_TASK_ID } from '../cron/bug-scanner.js';
+export type { BugScannerInput, BugScannerPayload, BugFinding, BugScanResult } from '../cron/bug-scanner.js';
 
 // Environment variable getters
 /**

@@ -10,7 +10,17 @@
 import { task, logger, tasks } from '@trigger.dev/sdk/v3';
 import { db, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
-import type { ProcessIssueInput } from './process-issue.js';
+
+// Define ProcessIssueInput locally to avoid dependency on missing process-issue.ts
+interface ProcessIssueInput {
+  githubInstallationId: number;
+  owner: string;
+  repo: string;
+  issueNumber: number;
+  userId: string;
+  repositoryId: string;
+  skipApproval?: boolean;
+}
 
 // ─── Task Constants ───────────────────────────────────────────────────────────
 
