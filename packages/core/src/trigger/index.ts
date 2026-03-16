@@ -94,6 +94,14 @@ export type { ProcessIssueInput, ProcessIssuePayload } from './process-issue.js'
 export { retryRunTask, RETRY_RUN_TASK_ID } from './retry-run.js';
 export type { RetryRunInput, RetryRunPayload } from './retry-run.js';
 
+// Export feature-suggester task
+export { featureSuggesterTask, FEATURE_SUGGESTER_TASK_ID } from '../cron/feature-suggester.js';
+export type { FeatureSuggesterInput, FeatureSuggesterPayload, HackerNewsStory, TrendingRepo, FeatureSuggestion } from '../cron/feature-suggester.js';
+
+// Export security-monitor task
+export { securityMonitorTask, SECURITY_MONITOR_TASK_ID } from '../cron/security-monitor.js';
+export type { SecurityMonitorInput, SecurityMonitorPayload, Vulnerability, SecurityScanResult } from '../cron/security-monitor.js';
+
 // Environment variable getters
 /**
  * Get the Trigger.dev project ID from environment variables.
