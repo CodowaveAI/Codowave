@@ -14,6 +14,7 @@ export const envSchema = z
     // Pro/hosted-only (optional in OSS)
     DATABASE_URL: z.string().optional(),
     TRIGGER_SECRET_KEY: z.string().optional(),
+    TRIGGER_PROJECT_ID: z.string().optional(),
     STRIPE_SECRET_KEY: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
   })

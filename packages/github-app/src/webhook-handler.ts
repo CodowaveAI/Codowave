@@ -55,7 +55,7 @@ export async function handleGitHubWebhook(
     return { status: 500, body: "Server misconfiguration" };
   }
 
-  const isValid = verifyWebhookSignature(rawBody, signature, secret);
+  const isValid = verifyWebhookSignature(secret, rawBody, signature);
   if (!isValid) {
     console.warn(`[webhook] Invalid signature for delivery=${deliveryId}`);
     return { status: 401, body: "Invalid webhook signature" };
