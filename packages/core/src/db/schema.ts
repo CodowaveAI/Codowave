@@ -145,6 +145,7 @@ export const runs = pgTable('runs', {
   baseBranch: text('base_branch'),
   commitSha: text('commit_sha'),
   status: runStatusEnum('status').notNull().default('pending'),
+  attempt: integer('attempt').notNull().default(1),
   errorMessage: text('error_message'),
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),

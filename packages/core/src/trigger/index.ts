@@ -86,6 +86,14 @@ export {
 // Note: The trigger.config.ts at package root is used by the Trigger.dev CLI.
 // It should not be imported at runtime - it's a configuration file for the CLI.
 
+// Export process-issue task
+export { processIssueTask, PROCESS_ISSUE_TASK_ID } from './process-issue.js';
+export type { ProcessIssueInput, ProcessIssuePayload } from './process-issue.js';
+
+// Export retry-run task
+export { retryRunTask, RETRY_RUN_TASK_ID } from './retry-run.js';
+export type { RetryRunInput, RetryRunPayload } from './retry-run.js';
+
 // Environment variable getters
 /**
  * Get the Trigger.dev project ID from environment variables.
